@@ -1,3 +1,5 @@
+const { pipeline } = require("nodemailer/lib/xoauth2");
+const { db } = require("../models/product");
 const Product = require("../models/product");
 const { User } = require("../models/user");
 const {
@@ -124,5 +126,75 @@ module.exports.FindProducts = async (req, res) => {
     res.status(200).json({ count, products });
   } catch (error) {
     res.status(500).json(error.message);
+  }
+};
+
+module.exports.datajoin2tables = async (req, res) => {
+  try {
+    const data = await Product.aggregate([
+      {
+        $lookup: {
+          from: "users",
+          localField: "Company_id",
+          foreignField: "_id",
+          as: "Company",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$Company_id", "$Company_id"],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                Name: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "cylinders",
+          localField: "_id",
+          foreignField: "Product",
+          as: "Total_Cylinders",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$Product", "$Product"],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                Status: 1,
+              },
+            },
+            { $count: "TotalCylinders" },
+          ],
+        },
+      },
+
+      {
+        $project: {
+          _id: 0,
+          Title: 1,
+          Size: 1,
+          Rating: 1,
+          Type: 1,
+          Company: 1,
+          Total_Cylinders: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json(data);
+  } catch (error) {
+    res.status(200).json(error.message);
   }
 };
