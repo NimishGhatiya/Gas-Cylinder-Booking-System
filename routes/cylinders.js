@@ -4,6 +4,7 @@ const {
   deleteCylinder,
   FindCylinders,
   Cylinder_Activate_Deactivate,
+  findcylindersdetails,
 } = require("../controller/cylinder_controller");
 const { authRole_Company_Admin } = require("../middleware/auth");
 
@@ -19,5 +20,5 @@ router.put(
   Cylinder_Activate_Deactivate
 );
 router.get("/", FindCylinders);
-
+router.get("/cylindersdetails", findcylindersdetails);
 module.exports = router;

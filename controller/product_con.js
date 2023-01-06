@@ -1,3 +1,4 @@
+const { isDate } = require("lodash");
 const { pipeline } = require("nodemailer/lib/xoauth2");
 const { db } = require("../models/product");
 const Product = require("../models/product");
@@ -131,7 +132,32 @@ module.exports.FindProducts = async (req, res) => {
 
 module.exports.datajoin2tables = async (req, res) => {
   try {
-    const data = await Product.aggregate([
+    const count = await Product.find().count();
+    const test = await Product.aggregate([
+      {
+        $lookup: {
+          from: "cylinders",
+          localField: "_id",
+          foreignField: "Product",
+          as: "Total_Cylinders",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$Product", "$Product"],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+              },
+            },
+            { $count: "TotalCylinders" },
+          ],
+        },
+      },
+      { $match: { Product: { $exists: false } } },
       {
         $lookup: {
           from: "users",
@@ -155,45 +181,35 @@ module.exports.datajoin2tables = async (req, res) => {
           ],
         },
       },
-      {
-        $lookup: {
-          from: "cylinders",
-          localField: "_id",
-          foreignField: "Product",
-          as: "Total_Cylinders",
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ["$Product", "$Product"],
-                },
-              },
-            },
-            {
-              $project: {
-                _id: 0,
-                Status: 1,
-              },
-            },
-            { $count: "TotalCylinders" },
-          ],
-        },
-      },
-
-      {
-        $project: {
-          _id: 0,
-          Title: 1,
-          Size: 1,
-          Rating: 1,
-          Type: 1,
-          Company: 1,
-          Total_Cylinders: 1,
-        },
-      },
     ]);
 
-    res.status(200).json(data);
+    let Product_List = [];
+    for (let item of test) {
+      if (!item.Total_Cylinders[0]) {
+        let respObj = {
+          Title: item.Title,
+          Size: item.Size,
+          Rating: item.Rating,
+          Type: item.Type,
+          Total_Cylinders: "Null",
+          Company: item.Company[0].Name,
+        };
+        Product_List.push(respObj);
+        respObj = {};
+      } else {
+        let respObj = {
+          Title: item.Title,
+          Size: item.Size,
+          Rating: item.Rating,
+          Type: item.Type,
+          Total_Cylinders: item.Total_Cylinders[0].TotalCylinders,
+          Company: item.Company[0].Name,
+        };
+        Product_List.push(respObj);
+        respObj = {};
+      }
+    }
+    res.status(200).json({ count, Product_List });
   } catch (error) {
     res.status(200).json(error.message);
   }

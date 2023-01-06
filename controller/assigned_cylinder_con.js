@@ -73,6 +73,7 @@ module.exports.AssignedCylindertodis = async (req, res) => {
     }
 
     let assign = new Assign(req.body);
+    
     assign = await assign.save();
     res.status(201).json(assign);
   } catch (error) {

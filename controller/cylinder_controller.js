@@ -224,3 +224,118 @@ module.exports.FindCylinders = async (req, res) => {
     res.status(500).json(error.message);
   }
 };
+
+module.exports.findcylindersdetails = async (req, res) => {
+  try {
+    const count = await Cylinders.find().count();
+    const test = await Cylinders.aggregate([
+      {
+        $lookup: {
+          from: "products",
+          localField: "Product",
+          foreignField: "_id",
+          as: "Product",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$Product", "$Product"],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                Title: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "users",
+          localField: "Supplier",
+          foreignField: "_id",
+          as: "Supplier",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$Supplier", "$Supplier"],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                Name: 1,
+                Current_Status: 1,
+              },
+            },
+          ],
+        },
+      },
+      {
+        $lookup: {
+          from: "assign cylinders",
+          localField: "_id",
+          foreignField: "Cylinder_id",
+          as: "Assignedto",
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$Cylinder_id", "$Cylinder_id"],
+                },
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                Distributor_id: 1,
+              },
+            },
+            {
+              $lookup: {
+                from: "users",
+                localField: "Distributor_id",
+                foreignField: "_id",
+                as: "Assignedto",
+                pipeline: [
+                  {
+                    $match: {
+                      $expr: {
+                        $eq: ["$_id", "$_id"],
+                      },
+                    },
+                  },
+                  {
+                    $project: {
+                      _id: 0,
+                      Name: 1,
+                    },
+                  },
+                ],
+              },
+            },
+          ],
+        },
+      },
+      {
+        $project: {
+          _id: 0,
+          Product: 1,
+          Cylinder_Manufacturing_Serial_Number: 1,
+          Supplier: 1,
+          Assignedto: 1,
+          Status: 1,
+        },
+      },
+    ]);
+
+    res.status(200).json({ count, test });
+  } catch (error) {
+    res.status(200).json(error.message);
+  }
+};

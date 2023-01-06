@@ -1,7 +1,6 @@
 // const {createInventory}=require('../controller/inventory_con')
 // const {authRole_Company_Admin}=require('../middleware/auth')
 
-
 // const express=require('express')
 // const router=express.Router()
 
