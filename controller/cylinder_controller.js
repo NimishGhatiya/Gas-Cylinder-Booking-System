@@ -314,6 +314,7 @@ module.exports.findcylindersdetails = async (req, res) => {
                     $project: {
                       _id: 0,
                       Name: 1,
+                      Role: 1,
                     },
                   },
                 ],
@@ -322,19 +323,45 @@ module.exports.findcylindersdetails = async (req, res) => {
           ],
         },
       },
-      {
-        $project: {
-          _id: 0,
-          Product: 1,
-          Cylinder_Manufacturing_Serial_Number: 1,
-          Supplier: 1,
-          Assignedto: 1,
-          Status: 1,
-        },
-      },
+      // {
+      //   $project: {
+      //     _id: 0,
+      //     Product: 1,
+      //     Cylinder_Manufacturing_Serial_Number: 1,
+      //     Supplier: 1,
+      //     Assignedto: 1,
+      //   },
+      // },
     ]);
-
-    res.status(200).json({ count, test });
+    let cylinder_list = [];
+    for (let item of test) {
+      if (!item.Assignedto[0]) {
+        let respObj = {
+          Product: item.Product[0].Title,
+          Cylinder_serial_Number: item.Cylinder_Manufacturing_Serial_Number,
+          Supplier: item.Supplier[0].Name,
+          Active_Status: item.Supplier[0].Current_Status,
+          Assignedto: "Null",
+          Business_Type: "Null",
+          Cylinder_Status: item.Status,
+        };
+        cylinder_list.push(respObj);
+        respObj = {};
+      } else {
+        let respObj = {
+          Product: item.Product[0].Title,
+          Cylinder_serial_Number: item.Cylinder_Manufacturing_Serial_Number,
+          Supplier: item.Supplier[0].Name,
+          Active_Status: item.Supplier[0].Current_Status,
+          Assignedto: item.Assignedto[0].Assignedto[0].Name,
+          Business_Type: item.Assignedto[0].Assignedto[0].Role,
+          Cylinder_Status: item.Status,
+        };
+        cylinder_list.push(respObj);
+        respObj = {};
+      }
+    }
+    res.status(200).json({ count, cylinder_list });
   } catch (error) {
     res.status(200).json(error.message);
   }
