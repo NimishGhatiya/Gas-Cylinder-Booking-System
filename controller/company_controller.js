@@ -1,4 +1,5 @@
 const crypto = require("crypto");
+
 const { User } = require("../models/user");
 const {
   createCompany_validate,
@@ -93,8 +94,6 @@ module.exports.deleteCompany = async (req, res) => {
     res.status(500).json(error.message);
   }
 };
-
-//find all user
 
 module.exports.Activate_Deactivate_Company_Account = async (req, res) => {
   try {

@@ -18,6 +18,11 @@ module.exports.createProduct = async (req, res) => {
     if (!companyadmin)
       return res.status(404).json("company admin token not found");
 
+    let role = companyadmin.Role == "company_admin";
+    if (!role) {
+      return res.status(401).json("You are not Company admin");
+    }
+
     let company = await User.findById(req.body.Company_id);
     if (!company) return res.status(404).json("Company not found");
 

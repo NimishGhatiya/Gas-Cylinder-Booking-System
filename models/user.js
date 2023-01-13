@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
 const uniqueValidator = require("mongoose-unique-validator");
+const { date, number } = require("joi");
 
 const UserSchema = new mongoose.Schema(
   {
@@ -24,10 +25,30 @@ const UserSchema = new mongoose.Schema(
       type: String,
       trim: true,
     },
-    Address: {
-      type: String,
-      uppercase: true,
-    },
+    Address: [
+      {
+        street_no: {
+          type: Number,
+          required: true,
+        },
+        address_line: {
+          type: String,
+          required: true,
+        },
+        pin_code: {
+          type: Number,
+          required: true,
+        },
+        city: {
+          type: String,
+          required: true,
+        },
+        country: {
+          type: String,
+          required: true,
+        },
+      },
+    ],
     Phone: {
       type: Number,
       unique: true,
@@ -57,6 +78,7 @@ const UserSchema = new mongoose.Schema(
       ref: "User",
     },
   },
+
   { timestamps: true }
 );
 

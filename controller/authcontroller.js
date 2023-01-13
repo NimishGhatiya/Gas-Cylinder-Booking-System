@@ -136,6 +136,12 @@ module.exports.change_password = async (req, res) => {
     const validpass = await bcrypt.compare(req.body.Oldpassword, user.Password);
     if (!validpass) return res.status(401).json("old password was wrong");
 
+    const matchpass = req.body.Newpassword === req.body.ConfirmPassword;
+    if (!matchpass)
+      return res
+        .status(400)
+        .json("Password not match......Please Enter Same Password");
+
     user = await User.findOneAndUpdate(
       req.user,
       {

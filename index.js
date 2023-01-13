@@ -12,7 +12,6 @@ const cylinders = require("./routes/cylinders");
 const assigned_cylinders = require("./routes/assigned_Cylinders");
 const return_cylinders = require("./routes/returncylinder");
 
-// const inventory=require('./routes/inventory')
 app.use(express.json());
 app.use("/api/auth", auth);
 app.use("/api/company", company);
@@ -22,8 +21,6 @@ app.use("/api/product", product);
 app.use("/api/cylinders", cylinders);
 app.use("/api/assign-cylinders", assigned_cylinders);
 app.use("/api/return-cylinders", return_cylinders);
-
-// app.use('/api/inventory',inventory)
 
 mongoose
   .connect(process.env.MONGO_URL)

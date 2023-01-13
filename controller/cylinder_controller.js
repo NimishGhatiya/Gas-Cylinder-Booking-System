@@ -16,6 +16,11 @@ module.exports.createCylinder = async (req, res) => {
     if (!companyadmin)
       return res.status(404).json("company admin token not found");
 
+    let role = companyadmin.Role == "company_admin";
+    if (!role) {
+      return res.status(401).json("You are not Company admin");
+    }
+
     let supplier = await User.findById(req.body.Supplier);
     if (!supplier) {
       return res.status(404).json("Supplier Not Found");
