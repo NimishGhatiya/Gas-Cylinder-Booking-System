@@ -11,6 +11,7 @@ const product = require("./routes/product");
 const cylinders = require("./routes/cylinders");
 const assigned_cylinders = require("./routes/assigned_Cylinders");
 const return_cylinders = require("./routes/returncylinder");
+const demo = "demo"
 
 app.use(express.json());
 app.use("/api/auth", auth);
